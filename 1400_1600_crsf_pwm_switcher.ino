@@ -1,10 +1,14 @@
 #include <CrsfSerial.h>
 #include <HardwareSerial.h>
 #include "../generic/common.h"
+#include "RP2040_PWM.h"
 
 #define PIN_SERIAL2_TX (8u)
 #define PIN_SERIAL2_RX (9u)
-#define PWM_PIN 2    // PWM output pin for sending signal
+#define pinToSend 2    // PWM output pin for sending signal
+
+// creates pwm instance
+RP2040_PWM* PWM_Instance;
 
 int spanStart = 1400;
 int spanEnd = 1600;
@@ -12,8 +16,10 @@ int spanEnd = 1600;
 CrsfSerial crsf(Serial2, CRSF_BAUDRATE);
 
 void setup() {
-  // Serial.begin(115200);
-  Serial2.begin(CRSF_BAUDRATE);
+  //assigns pin 2, with frequency of 10 KHz and a duty cycle of 0%
+  PWM_Instance = new RP2040_PWM(pinToSend, 10000, 0);
+
+  Serial.begin(115200);
   crsf.begin();
   crsf.onPacketChannels = &packetChannels;
   crsf.onLinkDown = &noConnection;
@@ -27,12 +33,12 @@ void packetChannels() {
   int Ch8Value = crsf.getChannel(8);
   // Check if Ch8 value is within the desired span
   if (Ch8Value >= spanStart && Ch8Value <= spanEnd) {
-      analogWrite(PWM_PIN, 255);
+    PWM_Instance->setPWM(pinToSend, 10000, 100);
   } else {
-      analogWrite(PWM_PIN, 0);
+    PWM_Instance->setPWM(pinToSend, 10000, 0);
   }
 }
 
 void noConnection() {
-  analogWrite(PWM_PIN, 0);
+  PWM_Instance->setPWM(pinToSend, 10000, 0);
 }

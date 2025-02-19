@@ -10,6 +10,7 @@
 // creates pwm instance
 RP2040_PWM* PWM_Instance;
 
+//us span in which the 100% duty cycle signal going to be sent to relay
 int spanStart = 1400;
 int spanEnd = 1600;
 
